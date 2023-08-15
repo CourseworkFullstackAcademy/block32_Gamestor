@@ -1,12 +1,13 @@
 const client = require('./client');
 const util = require('util');
 
-const REPLACE_ME = 'HELP REPLACE ME!!!!';
+const selectVideoGames = `SELECT * FROM videogames`;
 
 // GET - /api/video-games - get all video games
+//change variable to be sql select, figure out why the getAll BoardGames has rows instead of boardgames. because the getAllVideoGames has return videoGames
 async function getAllVideoGames() {
     try {
-        const { rows: videoGames } = await client.query(REPLACE_ME);
+        const { rows: videoGames } = await client.query(selectVideoGames);
         return videoGames;
     } catch (error) {
         throw new Error("Make sure you have replaced the REPLACE_ME placeholder.")
@@ -14,6 +15,7 @@ async function getAllVideoGames() {
 }
 
 // GET - /api/video-games/:id - get a single video game by id
+//create an async function to use sql Select from videogames, with a where id matches user imput id
 async function getVideoGameById(id) {
     try {
         const { rows: [videoGame] } = await client.query(`
@@ -27,18 +29,54 @@ async function getVideoGameById(id) {
 }
 
 // POST - /api/video-games - create a new video game
+// create const with all the parameters in the item objects. do an await to query client for video game and inster the parameters, then return with catch error. And throw error
 async function createVideoGame(body) {
-    // LOGIC GOES HERE
+    const { name, description, price, inStock, isPopular, imgUrl } = body;
+    try {
+        const { rows: [videoGame] } = await client.query(`
+
+            INSERT INTO videogames(name, description, price, "inStock", "isPopular", "imgUrl")
+            VALUES($1, $2, $3, $4, $5, $6)
+            Returning *;
+        `, [name, description, price, inStock, isPopular, imgUrl]);
+        return videoGame;
+    } catch (error) {
+        throw error;
+    }
 }
 
 // PUT - /api/video-games/:id - update a single video game by id
+// make a variable to map the object fields into an array to be updated. Then use an async funciton to update
 async function updateVideoGame(id, fields = {}) {
-    // LOGIC GOES HERE
+    const setString = Object.keys(fields).map((key, index) => `"${key}"=$${index+1}`).join(', ');
+    if (setString.length === 0) {
+        return;
+    }
+    try {
+        const { rows: [videoGame] } = await client.query(`
+        UPDATE boardgames
+        SET ${setString}
+        WHERE is=${id}
+        RETURNING *;
+        `, Object.values(fields));
+        return videoGame;
+    } catch (error) {
+        throw error;
+    }
 }
 
 // DELETE - /api/video-games/:id - delete a single video game by id
+//create an async funciton using the sql DELETE to remove the video game by id.
 async function deleteVideoGame(id) {
-    // LOGIC GOES HERE
+    try {
+        const { rows: [videoGame ]} = await client.query(`
+        DELETE FROM videogames
+        WHERE id=$1
+        Returning *;
+        `, [id]);
+    } catch (error) {
+        throw error;
+    }
 }
 
 module.exports = {
