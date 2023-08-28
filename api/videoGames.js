@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const REPLACE_ME = 'HELP REPLACE ME!!!!';
+
 
 const { getAllVideoGames,
     getVideoGameById,
@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
 // GET - /api/video-games/:id - get a single video game by id
 router.get('/:id', async (req, res, next) => {
     try {
-        const videoGame = await getVideoGameById(REPLACE_ME);
+        const videoGame = await getVideoGameById(req.params.id);
         res.send(videoGame);
     } catch (error) {
         next(error);
@@ -30,19 +30,34 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // POST - /api/video-games - create a new video game
-router.patch('/', async (req, res, next) => {
-    // LOGIC GOES HERE 
-});
+router.post("/", async (req, res, next) => {
+    try {
+      const videoGame = await createVideoGame(req.body);
+      res.send(videoGame);
+    } catch (err) {
+      next(err);
+    }
+  });
 
 
 // PUT - /api/video-games/:id - update a single video game by id
-router.put('/:id', async (req, res, next) => {
-    // LOGIC GOES HERE 
-});
+router.put("/:id", async (req, res, next) => {
+    try {
+      const videoGame = await updateVideoGame(req.params.id, req.body);
+      res.send(videoGame);
+    } catch (err) {
+      next(err);
+    }
+  });
 
 // DELETE - /api/video-games/:id - delete a single video game by id
-router.delete('/:id', async (req, res, next) => {
-    // LOGIC GOES HERE
-});
+router.delete("/:id", async (req, res, next) => {
+    try {
+      const videoGame = await deleteVideoGame(req.params.id);
+      res.send(videoGame);
+    } catch (err) {
+      next(err);
+    }
+  });
 
 module.exports = router;
